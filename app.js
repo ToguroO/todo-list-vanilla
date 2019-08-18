@@ -28,11 +28,13 @@ var todoController = (function () {
       }
     },
 
-    deleteTodo: function (element) {
+    delete: function (element) {
       if (element) {
         var id = element.getAttribute("data-id");
-        if (id) {
-          todos.splice(todos.indexOf(id), 1);
+        for (var i = 0; i < todos.length; i++) {
+          if (todos[i].id == id) {
+            todos.splice(i, 1);
+          }
         }
       }
     },
@@ -116,7 +118,7 @@ var controller = (function (UICtrl, todoCtrl) {
 
   var deleteItem = function (event) {
     if (event.target) {
-      todoCtrl.deleteTodo(event.target);
+      todoCtrl.delete(event.target);
       UICtrl.deleteTodo(event.target);
     }
   };
@@ -131,6 +133,3 @@ var controller = (function (UICtrl, todoCtrl) {
 })(UIController, todoController);
 
 controller.init();
-
-
-//TODO: SUPPRESSION ELEMENT TODOS INCORRECTE
