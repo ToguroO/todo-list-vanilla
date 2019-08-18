@@ -1,0 +1,44 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  color: #555;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  position: relative;
+  height: 100vh;
+  font-weight: 400;
+}
+
+header > h1 {
+  text-align: center;
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+
+#add__todo::placeholder {
+  font-style: italic;
+  font-weight: 300i;
+}
+
+.add__btn {
+  font-size: 35px;
+  background: none;
+  border: none;
+  color: #28B9B5;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.1;
+  margin-left: 10px;
+}
+
+.add__btn:active { transform: translateY(2px); }
+
+#to-dos__list li:hover {
+  cursor: pointer;
+  background: #ede7e6
+}
