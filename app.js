@@ -28,7 +28,7 @@ var todoController = (function () {
       }
     },
 
-    delete: function (element) {
+    deleteTodo: function (element) {
       if (element) {
         var id = element.getAttribute("data-id");
         for (var i = 0; i < todos.length; i++) {
@@ -37,6 +37,14 @@ var todoController = (function () {
           }
         }
       }
+    },
+
+    completeTodo: function (id) {
+      console.log('complete todo '+ id)
+    },  
+
+    uncompleteTodo: function (id) {
+      console.log('uncomplete todo ' + id)
     },
 
     testing: function () {
@@ -51,7 +59,7 @@ var todoController = (function () {
 var UIController = (function () {
   var DOMstrings = {
     todoInput: '#add__todo',
-    todoList: '#to-dos__list'
+    todoList: '#to-dos__list',
   };
 
   return {
@@ -67,7 +75,11 @@ var UIController = (function () {
       if (todo) {
         var html =
           `
-          <li class="list-group-item" data-id=${todo.id}>${todo.description}</li>
+          <li 
+            class="list-group-item" 
+            data-id=${todo.id}> ${todo.description}
+            <span class="delete"> x </span>
+          </li>
         `
         document.querySelector(DOMstrings.todoList).insertAdjacentHTML('beforeend', html);
       }
@@ -96,7 +108,8 @@ var controller = (function (UICtrl, todoCtrl) {
       }
     });
 
-    document.querySelector(DOM.todoList).addEventListener('dblclick', deleteItem);
+    // document.querySelector(DOM.todoList).addEventListener('dblclick', deleteItem);
+    document.querySelector(DOM.todoList).addEventListener('click', handleTodoListClick);
 
   };
 
@@ -116,13 +129,33 @@ var controller = (function (UICtrl, todoCtrl) {
 
   };
 
-  var deleteItem = function (event) {
-    if (event.target) {
-      todoCtrl.delete(event.target);
-      UICtrl.deleteTodo(event.target);
+  var handleTodoListClick = function (event) {
+    var deleteClassName = "delete";
+    var listClassName = "list-group-item";
+
+    if (event.target.className === deleteClassName) {
+      deleteItem(event.target.parentNode);
+    } else if (event.target.classList.contains(listClassName)) {
+      completeTodo(event.target);
     }
   };
 
+  var deleteItem = function (element) {
+    todoCtrl.deleteTodo(element);
+    UICtrl.deleteTodo(element);
+  };
+
+  var completeTodo = function (element) {
+    if (element) {
+      var id = element.getAttribute("data-id");;
+      if (element.classList.contains('completed')) {
+        todoCtrl.uncompleteTodo(id);
+      } else {
+        todoCtrl.completeTodo(id)
+      }
+      element.classList.toggle('completed');
+    }
+  };
 
   return {
     init: function () {
