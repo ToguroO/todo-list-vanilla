@@ -52,8 +52,11 @@ var todoController = (function () {
       return nb;
     },
 
+    countleftTodos: function () {
+      return this.countTodos() - this.countCompletedTodos();
+    },
+
     completeTodo: function (id) {
-      console.log('complete todo ' + id)
       for (var i = 0; i < todos.length; i++) {
         if (todos[i].id == id) {
           todos[i].completed = true;
@@ -63,7 +66,6 @@ var todoController = (function () {
     },
 
     uncompleteTodo: function (id) {
-      console.log('uncomplete todo ' + id)
       for (var i = 0; i < todos.length; i++) {
         if (todos[i].id == id) {
           todos[i].completed = false;
@@ -72,14 +74,17 @@ var todoController = (function () {
       }
     },
 
+    filterCompleted: function () {
+      return todos.filter(t => t.completed);
+    },
+
+    filterLeft: function () {
+      return todos.filter(t => !t.completed);
+    },
+
     testing: function () {
       console.log(todos);
     },
-
-    testCountCompleted: function () {
-      this.countCompletedTodos();
-    }
-
   };
 
 })();
@@ -91,7 +96,12 @@ var UIController = (function () {
     todoInput: '#add__todo',
     todoList: '#to-dos__list',
     allTodos: '#all-todos',
-    completedTodos: '#completed-todos'
+    allCompleted: '#all-completed',
+    alleft: '#all-left',
+    allTodoslink: '.all-todos-link',
+    allCompletedLink: '.all-completed-todos-link',
+    allLeftLink: '.all-left-todos-link'
+
   };
 
   return {
@@ -124,16 +134,18 @@ var UIController = (function () {
     },
 
     updateAllTodos: function (numberToDisplay) {
-      if (numberToDisplay) {
+      if (numberToDisplay >= 0) {
         document.querySelector(DOMstrings.allTodos).innerHTML = numberToDisplay;
       }
     },
 
-    updateCompleted: function (nbToDisplay) {
-      console.log(nbToDisplay)
-      document.querySelector(DOMstrings.completedTodos).innerHTML = nbToDisplay;
+    updateCompletedTodos: function (nbToDisplay) {
+      document.querySelector(DOMstrings.allCompleted).innerHTML = nbToDisplay;
     },
 
+    updateLeftTodos: function (nbToDisplay) {
+      document.querySelector(DOMstrings.alleft).innerHTML = nbToDisplay;
+    }
 
   };
 
@@ -143,8 +155,8 @@ var UIController = (function () {
 // GLOBAL APP CONTROLLER
 var controller = (function (UICtrl, todoCtrl) {
   var DOM = UICtrl.getDOMstrings();
-  var setupeEventListeners = function () {
 
+  var setupeEventListeners = function () {
     document.addEventListener('keypress', function (event) {
       var returnKeyNumber = 13;
       if (event.keyCode === returnKeyNumber || event.which === returnKeyNumber) {
@@ -154,7 +166,9 @@ var controller = (function (UICtrl, todoCtrl) {
 
     // document.querySelector(DOM.todoList).addEventListener('dblclick', deleteItem);
     document.querySelector(DOM.todoList).addEventListener('click', handleTodoListClick);
-
+    document.querySelector(DOM.allCompletedLink).addEventListener('click', filterCompletedTodos);
+    document.querySelector(DOM.allTodoslink).addEventListener('click', filterAllTodos);
+    document.querySelector(DOM.allLeftLink).addEventListener('click', filterLeftTodos);
   };
 
 
@@ -167,8 +181,8 @@ var controller = (function (UICtrl, todoCtrl) {
       // add the item to the UI
       UICtrl.addTodo(newTodo);
 
-      // update stats
-      updateAllTodos();
+      // update badges
+      updateBadges();
 
       // clear the fields
       UICtrl.clearInput();
@@ -190,6 +204,7 @@ var controller = (function (UICtrl, todoCtrl) {
   var deleteItem = function (element) {
     todoCtrl.deleteTodo(element);
     UICtrl.deleteTodo(element);
+    updateBadges();
   };
 
   var completeTodo = function (element) {
@@ -201,13 +216,27 @@ var controller = (function (UICtrl, todoCtrl) {
         todoCtrl.completeTodo(id)
       }
       element.classList.toggle('completed');
-      UICtrl.updateCompleted(todoCtrl.countCompletedTodos());
+      updateBadges();
     }
   };
 
-  var updateAllTodos = function () {
-    var nb = todoCtrl.countTodos();
-    UICtrl.updateAllTodos(nb);
+  var filterCompletedTodos = function () {
+    console.log('filter completed');
+  };
+
+  var filterAllTodos = function () {
+    console.log('filter all');
+  };
+
+  var filterLeftTodos = function () {
+    console.log('filter left');
+  };
+
+
+  var updateBadges = function () {
+    UICtrl.updateAllTodos(todoCtrl.countTodos());
+    UICtrl.updateCompletedTodos(todoCtrl.countCompletedTodos());
+    UICtrl.updateLeftTodos(todoCtrl.countleftTodos());
   }
 
   return {
