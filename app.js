@@ -31,25 +31,55 @@ var todoController = (function () {
     deleteTodo: function (element) {
       if (element) {
         var id = element.getAttribute("data-id");
+
         for (var i = 0; i < todos.length; i++) {
           if (todos[i].id == id) {
             todos.splice(i, 1);
+            break;
           }
         }
       }
     },
 
+    countTodos: function () {
+      return todos.length;
+    },
+
+    countCompletedTodos: function () {
+      var nb = todos.reduce(function (n, val) {
+        return n + (val.completed === true);
+      }, 0);
+      return nb;
+    },
+
     completeTodo: function (id) {
-      console.log('complete todo '+ id)
-    },  
+      console.log('complete todo ' + id)
+      for (var i = 0; i < todos.length; i++) {
+        if (todos[i].id == id) {
+          todos[i].completed = true;
+          break;
+        }
+      }
+    },
 
     uncompleteTodo: function (id) {
       console.log('uncomplete todo ' + id)
+      for (var i = 0; i < todos.length; i++) {
+        if (todos[i].id == id) {
+          todos[i].completed = false;
+          break;
+        }
+      }
     },
 
     testing: function () {
       console.log(todos);
+    },
+
+    testCountCompleted: function () {
+      this.countCompletedTodos();
     }
+
   };
 
 })();
@@ -60,6 +90,8 @@ var UIController = (function () {
   var DOMstrings = {
     todoInput: '#add__todo',
     todoList: '#to-dos__list',
+    allTodos: '#all-todos',
+    completedTodos: '#completed-todos'
   };
 
   return {
@@ -90,6 +122,18 @@ var UIController = (function () {
         todo.parentNode.removeChild(todo);
       }
     },
+
+    updateAllTodos: function (numberToDisplay) {
+      if (numberToDisplay) {
+        document.querySelector(DOMstrings.allTodos).innerHTML = numberToDisplay;
+      }
+    },
+
+    updateCompleted: function (nbToDisplay) {
+      console.log(nbToDisplay)
+      document.querySelector(DOMstrings.completedTodos).innerHTML = nbToDisplay;
+    },
+
 
   };
 
@@ -123,6 +167,9 @@ var controller = (function (UICtrl, todoCtrl) {
       // add the item to the UI
       UICtrl.addTodo(newTodo);
 
+      // update stats
+      updateAllTodos();
+
       // clear the fields
       UICtrl.clearInput();
     }
@@ -154,8 +201,14 @@ var controller = (function (UICtrl, todoCtrl) {
         todoCtrl.completeTodo(id)
       }
       element.classList.toggle('completed');
+      UICtrl.updateCompleted(todoCtrl.countCompletedTodos());
     }
   };
+
+  var updateAllTodos = function () {
+    var nb = todoCtrl.countTodos();
+    UICtrl.updateAllTodos(nb);
+  }
 
   return {
     init: function () {

@@ -42,3 +42,15 @@ header > h1 {
   cursor: pointer;
   background: #ede7e6
 }
+
+.delete {
+  float: right;
+}
+
+.delete:hover {
+  color: #f44336;
+}
+
+.completed {
+  text-decoration: line-through;
+}
