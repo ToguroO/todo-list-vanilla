@@ -1,5 +1,4 @@
-'use strict'
-
+'use strict';
 
 var todoController = (function () {
   var Todo = function (id, description) {
@@ -9,7 +8,6 @@ var todoController = (function () {
   };
 
   var todos = [],
-
     createId = function () {
       if (todos.length > 0) {
         return todos[todos.length - 1].id + 1;
@@ -21,7 +19,6 @@ var todoController = (function () {
   return {
     addTodo: function (description) {
       if (description) {
-        var id = createId();
         var newTodo = new Todo(createId(), description);
         todos.push(newTodo);
         return newTodo;
@@ -30,7 +27,7 @@ var todoController = (function () {
 
     deleteTodo: function (element) {
       if (element) {
-        var id = element.getAttribute("data-id");
+        var id = element.getAttribute('data-id');
 
         for (var i = 0; i < todos.length; i++) {
           if (todos[i].id == id) {
@@ -75,33 +72,38 @@ var todoController = (function () {
     },
 
     filterCompleted: function () {
-      return todos.filter(t => t.completed);
+      return todos.filter((t) => t.completed);
     },
 
     filterLeft: function () {
-      return todos.filter(t => !t.completed);
+      return todos.filter((t) => !t.completed);
     },
 
+    filterAll: function () {
+      return todos;
+    },
     testing: function () {
       console.log(todos);
     },
   };
-
 })();
-
 
 // User Interface controller
 var UIController = (function () {
   var DOMstrings = {
     todoInput: '#add__todo',
     todoList: '#to-dos__list',
+    todo: '.list-group-item',
     allTodos: '#all-todos',
     allCompleted: '#all-completed',
     alleft: '#all-left',
     allTodoslink: '.all-todos-link',
     allCompletedLink: '.all-completed-todos-link',
-    allLeftLink: '.all-left-todos-link'
+    allLeftLink: '.all-left-todos-link',
+  };
 
+  var clearTodoList = function () {
+    document.querySelector(DOMstrings.todoList).innerHTML = '';
   };
 
   return {
@@ -110,20 +112,21 @@ var UIController = (function () {
     },
 
     clearInput: function () {
-      document.querySelector(DOMstrings.todoInput).value = "";
+      document.querySelector(DOMstrings.todoInput).value = '';
     },
 
     addTodo: function (todo) {
       if (todo) {
-        var html =
-          `
+        var html = `
           <li 
             class="list-group-item" 
             data-id=${todo.id}> ${todo.description}
             <span class="delete"> x </span>
           </li>
-        `
-        document.querySelector(DOMstrings.todoList).insertAdjacentHTML('beforeend', html);
+        `;
+        document
+          .querySelector(DOMstrings.todoList)
+          .insertAdjacentHTML('beforeend', html);
       }
     },
 
@@ -145,32 +148,48 @@ var UIController = (function () {
 
     updateLeftTodos: function (nbToDisplay) {
       document.querySelector(DOMstrings.alleft).innerHTML = nbToDisplay;
-    }
+    },
 
+    filterTodos: function (todos) {
+      if (todos) {
+        clearTodoList();
+        todos.forEach((element) => {
+          this.addTodo(element);
+        });
+      }
+    },
   };
-
 })();
-
 
 // GLOBAL APP CONTROLLER
 var controller = (function (UICtrl, todoCtrl) {
   var DOM = UICtrl.getDOMstrings();
 
-  var setupeEventListeners = function () {
+  var setupEventListeners = function () {
     document.addEventListener('keypress', function (event) {
       var returnKeyNumber = 13;
-      if (event.keyCode === returnKeyNumber || event.which === returnKeyNumber) {
+      if (
+        event.keyCode === returnKeyNumber ||
+        event.which === returnKeyNumber
+      ) {
         addItem();
       }
     });
 
     // document.querySelector(DOM.todoList).addEventListener('dblclick', deleteItem);
-    document.querySelector(DOM.todoList).addEventListener('click', handleTodoListClick);
-    document.querySelector(DOM.allCompletedLink).addEventListener('click', filterCompletedTodos);
-    document.querySelector(DOM.allTodoslink).addEventListener('click', filterAllTodos);
-    document.querySelector(DOM.allLeftLink).addEventListener('click', filterLeftTodos);
+    document
+      .querySelector(DOM.todoList)
+      .addEventListener('click', handleTodoListClick);
+    document
+      .querySelector(DOM.allCompletedLink)
+      .addEventListener('click', filterCompletedTodos);
+    document
+      .querySelector(DOM.allTodoslink)
+      .addEventListener('click', filterAllTodos);
+    document
+      .querySelector(DOM.allLeftLink)
+      .addEventListener('click', filterLeftTodos);
   };
-
 
   var addItem = function () {
     var description = document.querySelector(DOM.todoInput).value;
@@ -187,12 +206,11 @@ var controller = (function (UICtrl, todoCtrl) {
       // clear the fields
       UICtrl.clearInput();
     }
-
   };
 
   var handleTodoListClick = function (event) {
-    var deleteClassName = "delete";
-    var listClassName = "list-group-item";
+    var deleteClassName = 'delete';
+    var listClassName = 'list-group-item';
 
     if (event.target.className === deleteClassName) {
       deleteItem(event.target.parentNode);
@@ -209,11 +227,11 @@ var controller = (function (UICtrl, todoCtrl) {
 
   var completeTodo = function (element) {
     if (element) {
-      var id = element.getAttribute("data-id");;
+      var id = element.getAttribute('data-id');
       if (element.classList.contains('completed')) {
         todoCtrl.uncompleteTodo(id);
       } else {
-        todoCtrl.completeTodo(id)
+        todoCtrl.completeTodo(id);
       }
       element.classList.toggle('completed');
       updateBadges();
@@ -221,29 +239,37 @@ var controller = (function (UICtrl, todoCtrl) {
   };
 
   var filterCompletedTodos = function () {
-    console.log('filter completed');
+    let todos = todoCtrl.filterCompleted();
+    if (todos) {
+      UIController.filterTodos(todos);
+    }
   };
 
   var filterAllTodos = function () {
-    console.log('filter all');
+    let todos = todoCtrl.filterAll();
+    if (todos) {
+      UIController.filterTodos(todos);
+    }
   };
 
   var filterLeftTodos = function () {
-    console.log('filter left');
+    let todos = todoCtrl.filterLeft();
+    if (todos) {
+      UIController.filterTodos(todos);
+    }
   };
-
 
   var updateBadges = function () {
     UICtrl.updateAllTodos(todoCtrl.countTodos());
     UICtrl.updateCompletedTodos(todoCtrl.countCompletedTodos());
     UICtrl.updateLeftTodos(todoCtrl.countleftTodos());
-  }
+  };
 
   return {
     init: function () {
-      console.log(" application has started");
-      setupeEventListeners();
-    }
+      console.log(' application has started');
+      setupEventListeners();
+    },
   };
 })(UIController, todoController);
 
